@@ -2,23 +2,29 @@ import React, { useState, useEffect } from 'react';
 
 // eslint-disable-next-line react/prop-types
 function Countdown({ nextStart, frequency }) {
+  const calculateNextStartDate = (currentDate, frequency) => {
+    const nextStartDate = new Date(currentDate);
+    
+    // Handle frequency cases
+    if (frequency === 'weekly') {
+      nextStartDate.setDate(nextStartDate.getDate() + 7); // Move forward by 7 days
+    } else if (frequency === 'monthly') {
+      nextStartDate.setMonth(nextStartDate.getMonth() + 1); // Move forward by 1 month
+    }
+
+    return nextStartDate;
+  };
+
   const calculateTimeLeft = () => {
     const now = new Date();
-    const nextStartDate = new Date(nextStart);
-    const difference = nextStartDate - now;
+    let nextStartDate = new Date(nextStart);
+    let difference = nextStartDate - now;
 
+    // If the event has already passed, move the next start date forward
     if (difference <= 0) {
-      if(frequency === 'weekly' && nextStartDate.getDay() === 0){
-        nextStartDate.setDate(nextStartDate.getDate() + 7);
-        return calculateTimeLeft();
-      }
-      if(frequency === 'monthly' && nextStartDate.getDate() === -1||nextStartDate.getDate() === -1 || nextStartDate.hours() === -1 || nextStartDate.minutes() === -1 || nextStartDate.seconds() === -1){
-        nextStartDate.setMonth(nextStartDate.getMonth() + 1);
-        return calculateTimeLeft();
-      }
+      nextStartDate = calculateNextStartDate(nextStartDate, frequency);
+      difference = nextStartDate - now; // Recalculate the difference
     }
-      // return { days: day, hours: hr, minutes: min, seconds: sec};}
-
 
     const seconds = Math.floor((difference / 1000) % 60);
     const minutes = Math.floor((difference / (1000 * 60)) % 60);
@@ -35,15 +41,15 @@ function Countdown({ nextStart, frequency }) {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [nextStart]);
+    return () => clearInterval(timer); // Clean up the timer on component unmount
+  }, [nextStart, frequency]); // Include frequency as a dependency
 
   return (
     <div>
-      <span>{timeLeft.days}d </span>
-      <span>{timeLeft.hours}h </span>
-      <span>{timeLeft.minutes}m </span>
-      <span>{timeLeft.seconds}s</span>
+      <span>{Math.max(timeLeft.days, 0)}d </span>
+      <span>{Math.max(timeLeft.hours, 0)}h </span>
+      <span>{Math.max(timeLeft.minutes, 0)}m </span>
+      <span>{Math.max(timeLeft.seconds, 0)}s</span>
     </div>
   );
 }
