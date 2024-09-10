@@ -38,7 +38,7 @@ const sendNotification = async (contest, platform, user) => {
   console.log("Notification data:", JSON.stringify(notificationData, null, 2));
 
   try {
-    let response = await fetch('http://localhost:3000/api/notifications', { // Update URL if needed for production
+    let response = await fetch('https://compete-track-server.onrender.com/api/notifications', { // Update URL if needed for production
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
